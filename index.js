@@ -24,27 +24,23 @@ rl.on('SIGINT', () => {
 let droneNumber = 1;
 
 const defineArea = async () => {
-  const area = {};
   const answer = await question(`Define area to control for drone number ${droneNumber}:`);
-  area.x = answer.charAt(0);
-  area.y = answer.charAt(1);
-  console.log(`AREA: ${area.x} ${area.y}`);
-  return area;
+  const [x, y] = answer.split(' ');
+  console.log(`AREA: ${x} ${y}`);
+  return { x, y };
 };
 
+const isNumber = (value) => (/^\d+$/.test(value));
+
 const defineInitialPosition = async () => {
-  const initialPosition = {};
   const answer = await question(`Define initial position for drone number ${droneNumber} (x,y coordinates and the orientation - e.g: 3 3 E):`);
   // if (!validInput(initialPosition, 'initialPosition')) {
   //   rl.write('Wrong format of the initial position, try again.');
   //   defineInitialPosition();
   // }
-  const properties = ['positionX', 'positionY', 'direction'];
-  for (const position in answer) {
-    initialPosition[properties[position]] = answer.charAt(position);
-  }
-  console.log(`INITIAL POSITION: ${initialPosition.positionX} ${initialPosition.positionY} ${initialPosition.direction}`);
-  return initialPosition;
+  const [positionX, positionY, direction] = answer.split(' ');
+  console.log(`INITIAL POSITION: ${positionX} ${positionY} ${direction}`);
+  return { positionX: parseInt(positionX, 10), positionY: parseInt(positionY, 10), direction };
 };
 
 const defineInstructions = async () => {

@@ -52,7 +52,7 @@ const move = (position) => {
       positionX -= 1;
       break;
     case 'N':
-      positionX += 1;
+      positionY += 1;
       break;
     default:
   }
