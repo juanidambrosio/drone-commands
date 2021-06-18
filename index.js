@@ -5,7 +5,7 @@ const readline = require('readline');
 const util = require('util');
 const { rotateLeft90, rotateRight90, move } = require('./droneActions');
 const executeCommands = require('./execute');
-const { isAreaValid, isPositionValid } = require('./validators');
+const { isValid, outOfBounds } = require('./validators');
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -16,7 +16,7 @@ const question = util.promisify(rl.question).bind(rl);
 
 rl.on('SIGINT', () => {
   rl.question('Are you sure you want to exit? ', (answer) => {
-    if (answer.match(/^y(es)?$/i)) {
+    if (answer.match(/^y(es)?$/)) {
       rl.close();
     }
   });
@@ -25,9 +25,9 @@ rl.on('SIGINT', () => {
 let droneNumber = 1;
 
 const defineArea = async () => {
-  const answer = await question(`Define area to control for drone number ${droneNumber}:`);
+  const answer = await question('Define area to control for drones:');
   const [x, y] = answer.split(' ');
-  if (!isAreaValid({ x, y })) {
+  if (!isValid({ x, y })) {
     console.error('\x1b[31m%s\x1b[0m', 'Wrong format of area, try again');
     return defineArea();
   }
@@ -35,17 +35,18 @@ const defineArea = async () => {
   return { x, y };
 };
 
-const defineInitialPosition = async () => {
+const defineInitialPosition = async (areaDefined) => {
+  let initialPosition;
   const answer = await question(`Define initial position for drone number ${droneNumber} (x,y coordinates and the orientation - e.g: 3 3 E):`);
-  const [positionX, positionY, direction] = answer.split(' ');
-  if (!isPositionValid({ positionX, positionY, direction })) {
+  const [x, y, direction] = answer.split(' ');
+  if (!isValid({ x, y, direction }) || outOfBounds(areaDefined, { positionX: x, positionY: y })) {
     console.error('\x1b[31m%s\x1b[0m', 'Wrong format of initial position, try again');
-    return defineInitialPosition();
+    return defineInitialPosition(areaDefined);
   }
-  console.log(`INITIAL POSITION: ${positionX} ${positionY} ${direction}`);
+  console.log(`INITIAL POSITION: ${x} ${y} ${direction}`);
   return {
-    positionX: parseInt(positionX, 10),
-    positionY: parseInt(positionY, 10),
+    positionX: parseInt(x, 10),
+    positionY: parseInt(y, 10),
     direction: direction.toUpperCase(),
   };
 };
@@ -71,7 +72,7 @@ const defineInstructions = async () => {
 };
 
 const isComplete = async () => {
-  const answer = await question(`Add drone number ${droneNumber + 1}? Y for Yes, N for No:`);
+  const answer = await question(`Add drone number ${droneNumber + 1}? Y for Yes, N for No: \n`);
   const answerTrimmed = answer.trim().toUpperCase();
   switch (answerTrimmed) {
     case 'Y':
@@ -84,17 +85,15 @@ const isComplete = async () => {
 };
 
 const start = async () => {
-  let complete = false;
-  const commands = [];
+  const drones = [];
   const areaDefined = await defineArea();
-  while (!complete) {
-    const position = await defineInitialPosition();
+  while (droneNumber) {
+    const position = await defineInitialPosition(areaDefined);
     const instructions = await defineInstructions();
-    commands.push({ position, instructions });
-    complete = await isComplete();
-    droneNumber += 1;
+    drones.push({ position, instructions });
+    droneNumber = await isComplete() ? undefined : droneNumber += 1;
   }
-  executeCommands(areaDefined, commands);
+  executeCommands(areaDefined, drones);
   rl.close();
 };
 

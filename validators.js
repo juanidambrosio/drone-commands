@@ -2,17 +2,18 @@ const isNumber = (value) => (/^\d+$/.test(value));
 
 const isOneOfESON = (value) => /^[esonESON]{1}$/.test(value);
 
-const isPositionValid = (position) => {
-  const { positionX, positionY, direction } = position;
-  return isNumber(positionX) && isNumber(positionY) && isOneOfESON(direction);
+const isValid = (position) => {
+  const { x, y, direction } = position;
+  return isNumber(x) && isNumber(y) && (isOneOfESON(direction) || !direction);
 };
 
-const isAreaValid = (area) => {
-  const { x, y } = area;
-  return isNumber(x) && isNumber(y);
+const outOfBounds = (areaDefined, position) => {
+  const { positionX, positionY } = position;
+  const { x, y } = areaDefined;
+  return positionX < 0 || positionX > x || positionY < 0 || positionY > y;
 };
 
 module.exports = {
-  isPositionValid,
-  isAreaValid,
+  isValid,
+  outOfBounds,
 };
