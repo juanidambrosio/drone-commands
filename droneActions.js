@@ -39,7 +39,8 @@ const rotateRight90 = (position) => {
 };
 
 const move = (position) => {
-  let { positionX, positionY, direction } = position;
+  const { direction } = position;
+  let { positionX, positionY } = position;
 
   switch (direction) {
     case 'E':
@@ -56,7 +57,6 @@ const move = (position) => {
       break;
     default:
   }
-  console.log(position);
   return { ...position, positionX, positionY };
 };
 
