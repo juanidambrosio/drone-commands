@@ -1,10 +1,15 @@
-const isNumber = (value) => (/^\d+$/.test(value));
+const isNumber = (value) => (/^[0-9]+/.test(value));
 
 const isOneOfESON = (value) => /^[esonESON]{1}$/.test(value);
 
-const isValid = (position) => {
-  const { x, y, direction } = position;
-  return isNumber(x) && isNumber(y) && (isOneOfESON(direction) || !direction);
+const isValidArea = (area) => {
+  const { x, y } = area;
+  return isNumber(x) && isNumber(y);
+};
+
+const isValidPosition = (position) => {
+  const { positionX, positionY, direction } = position;
+  return isNumber(positionX) && isNumber(positionY) && isOneOfESON(direction);
 };
 
 const outOfBounds = (areaDefined, position) => {
@@ -14,6 +19,7 @@ const outOfBounds = (areaDefined, position) => {
 };
 
 module.exports = {
-  isValid,
+  isValidArea,
+  isValidPosition,
   outOfBounds,
 };

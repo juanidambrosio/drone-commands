@@ -3,9 +3,9 @@
 /* eslint-disable guard-for-in */
 const readline = require('readline');
 const util = require('util');
-const { rotateLeft90, rotateRight90, move } = require('./droneActions');
+const { rotate, move } = require('./droneActions');
 const executeCommands = require('./execute');
-const { isValid, outOfBounds } = require('./validators');
+const { isValidArea, isValidPosition, outOfBounds } = require('./validators');
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -27,28 +27,30 @@ let droneNumber = 1;
 const defineArea = async () => {
   const answer = await question('Define area to control for drones:');
   const [x, y] = answer.split(' ');
-  if (!isValid({ x, y })) {
+  if (!isValidArea({ x, y })) {
     console.error('\x1b[31m%s\x1b[0m', 'Wrong format of area, try again');
     return defineArea();
   }
   console.log(`AREA: ${x} ${y}`);
-  return { x, y };
+  return { x: parseInt(x, 10), y: parseInt(x, 10) };
 };
 
 const defineInitialPosition = async (areaDefined) => {
-  let initialPosition;
   const answer = await question(`Define initial position for drone number ${droneNumber} (x,y coordinates and the orientation - e.g: 3 3 E):`);
-  const [x, y, direction] = answer.split(' ');
-  if (!isValid({ x, y, direction }) || outOfBounds(areaDefined, { positionX: x, positionY: y })) {
+  const [positionX, positionY, direction] = answer.split(' ');
+  const finalPosition = {
+    positionX: parseInt(positionX, 10),
+    positionY: parseInt(positionY, 10),
+    direction: direction && direction.toUpperCase(),
+  };
+
+  if (!isValidPosition(finalPosition)
+  || outOfBounds(areaDefined, finalPosition)) {
     console.error('\x1b[31m%s\x1b[0m', 'Wrong format of initial position, try again');
     return defineInitialPosition(areaDefined);
   }
-  console.log(`INITIAL POSITION: ${x} ${y} ${direction}`);
-  return {
-    positionX: parseInt(x, 10),
-    positionY: parseInt(y, 10),
-    direction: direction.toUpperCase(),
-  };
+  console.log(`INITIAL POSITION: ${positionX} ${positionY} ${direction}`);
+  return finalPosition;
 };
 
 const defineInstructions = async () => {
@@ -57,13 +59,13 @@ const defineInstructions = async () => {
   for (const position of answer.toUpperCase()) {
     switch (position) {
       case 'L':
-        instructions.push(rotateLeft90);
+        instructions.push(rotate({ orientation: 'left', degrees: 90 }));
         break;
       case 'R':
-        instructions.push(rotateRight90);
+        instructions.push(rotate({ orientation: 'right', degrees: 90 }));
         break;
       case 'M':
-        instructions.push(move);
+        instructions.push(move({ steps: 1 }));
         break;
       default:
     }

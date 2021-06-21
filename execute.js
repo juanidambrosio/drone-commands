@@ -13,7 +13,7 @@ const executeCommands = (areaDefined, drones) => {
         break;
       }
     }
-    console.log(position ? `${position.positionX} ${position.positionY} ${position.direction}` : `Out of bounds for drone number ${index + 1}`);
+    console.log(`Drone number ${index + 1}: ${position ? `${position.positionX} ${position.positionY} ${position.direction}` : 'Out of bounds'}`);
   });
 };
 
