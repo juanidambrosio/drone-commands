@@ -2,7 +2,7 @@
 const { outOfBounds } = require('./validators');
 
 const executeCommands = (areaDefined, drones) => {
-  drones.forEach((drone, index) => {
+  const dronesPositions = drones.map((drone, index) => {
     const { instructions } = drone;
     let { position } = drone;
 
@@ -14,7 +14,9 @@ const executeCommands = (areaDefined, drones) => {
       }
     }
     console.log(`Drone number ${index + 1}: ${position ? `${position.positionX} ${position.positionY} ${position.direction}` : 'Out of bounds'}`);
+    return position;
   });
+  return dronesPositions;
 };
 
 module.exports = executeCommands;

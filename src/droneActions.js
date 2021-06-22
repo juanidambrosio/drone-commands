@@ -5,7 +5,7 @@ const calculateIndex = (orientation, direction, movingPositions) => {
     return index >= 0 ? directions[index] : directions[directions.length + index];
   }
   const index = directions.indexOf(direction) + movingPositions;
-  return index <= index.length ? directions[index] : directions[index - directions.length];
+  return index < directions.length ? directions[index] : directions[index - directions.length];
 };
 
 const rotate = (options) => (position) => {
